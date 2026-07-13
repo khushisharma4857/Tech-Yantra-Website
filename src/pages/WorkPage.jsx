@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Bubblemenu from '../components/Bubblemenu';
+import BubbleMenu from '../components/Bubblemenu';
 
 const projects = [
   {
