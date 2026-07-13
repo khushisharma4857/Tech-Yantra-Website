@@ -1,15 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/homepage";
-import WorkPage from "./pages/workpage";
+import HomePage from "./pages/HomePage";
+import WorkPage from "./pages/WorkPage";
 import Antigravity from "./components/Antigravity";
-import WhatsAppButton from "./components/WhatsappButton";
+import WhatsAppButton from "./components/WhatsAppButton";
 
 function App() {
   return (
     <>
-      <div className="antigravity-background">git add src/App.jsx
-git commit -m "Fix App imports"
-git push
+      <div className="antigravity-background">
         <Antigravity
           count={350}
           magnetRadius={18}
