@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import BubbleMenu from '../components/BubbleMenu';
+import Bubblemenu from '../components/Bubblemenu';
 import Antigravity from '../components/Antigravity';
 
 gsap.registerPlugin(ScrollTrigger);

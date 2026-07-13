@@ -2,7 +2,7 @@ import logo from "../assets/logo.png";
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { Link } from "react-router-dom";
-import "./BubbleMenu.css";
+import "./Bubblemenu.css";
 
 const MENU_ITEMS = [
   { label: "Home", href: "/", ariaLabel: "Home", rotation: -8, hoverBg: "#E30613", hoverColor: "#ffffff" },
@@ -12,7 +12,7 @@ const MENU_ITEMS = [
   { label: "Contact", href: "/#contact", ariaLabel: "Contact", rotation: 8, hoverBg: "#E30613", hoverColor: "#ffffff" },
 ];
 
-export default function BubbleMenu({ useFixedPosition = false }) {
+export default function Bubblemenu({ useFixedPosition = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const overlayRef = useRef(null);
