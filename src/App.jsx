@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/homePage";
-import WorkPage from "./pages/workPage";
+import HomePage from "./pages/homepage";
+import WorkPage from "./pages/workpage";
 import Antigravity from "./components/Antigravity";
-import WhatsAppButton from "./components/WhatsAppButton";
+import WhatsAppButton from "./components/WhatsappButton";
 
 function App() {
   return (
