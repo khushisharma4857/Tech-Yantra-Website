@@ -7,7 +7,9 @@ import WhatsAppButton from "./components/WhatsappButton";
 function App() {
   return (
     <>
-      <div className="antigravity-background">
+      <div className="antigravity-background">git add src/App.jsx
+git commit -m "Fix App imports"
+git push
         <Antigravity
           count={350}
           magnetRadius={18}
