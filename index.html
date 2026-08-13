@@ -2,14 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Tech Yantra - Full-stack software studio building web, AI, ERP, and CRM products." />
-    <meta name="keywords" content="software studio, full-stack development, tech yantra, AI products, ERP, CRM, MERN stack, Next.js" />
-    <title>Tech Yantra</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#E30613" />
+
+    <title>Tech Yantra | Full-Stack Software Studio</title>
+    <meta
+      name="description"
+      content="Tech Yantra is a full-stack software studio in Noida, India building web platforms, AI products, ERP and CRM systems end-to-end."
+    />
+    <link rel="canonical" href="https://techyantra.org/" />
+
+    <!-- Preconnect before the stylesheet request so the TLS handshake to the
+         font hosts overlaps with CSS parsing instead of queueing behind it.
+         Loading fonts via <link> rather than an @import inside index.css also
+         removes a render-blocking request waterfall. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+
+    <!-- Open Graph / social previews. react-helmet-async overrides these
+         per-route at runtime; these are the values crawlers that do not run
+         JavaScript will see. -->
+    <meta property="og:site_name" content="Tech Yantra" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tech Yantra | Full-Stack Software Studio" />
+    <meta
+      property="og:description"
+      content="Web platforms, AI products, ERP and CRM systems engineered end-to-end by one full-stack team."
+    />
+    <meta property="og:url" content="https://techyantra.org/" />
+    <meta property="og:image" content="https://techyantra.org/og-image.png" />
+    <meta property="og:image:alt" content="Tech Yantra — full-stack software studio" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tech Yantra | Full-Stack Software Studio" />
+    <meta
+      name="twitter:description"
+      content="Web platforms, AI products, ERP and CRM systems engineered end-to-end by one full-stack team."
+    />
+    <meta name="twitter:image" content="https://techyantra.org/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="max-width:640px;margin:80px auto;padding:0 24px;font-family:system-ui,sans-serif;line-height:1.6">
+        <h1>Tech Yantra</h1>
+        <p>
+          A full-stack software studio in Noida, India building web platforms, AI
+          products, ERP and CRM systems end-to-end.
+        </p>
+        <p>
+          This site needs JavaScript enabled. You can reach us directly at
+          <a href="mailto:info@techyantra.org">info@techyantra.org</a>.
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

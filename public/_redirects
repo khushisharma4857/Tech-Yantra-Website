@@ -1,0 +1,3 @@
+# SPA fallback: /work and /404 are client-side routes, so every non-asset
+# path must serve index.html or a direct visit / refresh returns a host 404.
+/*    /index.html   200
