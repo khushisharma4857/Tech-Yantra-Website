@@ -1,8 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Fonts are loaded via <link rel="preconnect"> + <link rel="stylesheet"> in
+   index.html. A CSS @import here would have to be discovered and fetched only
+   after this stylesheet itself downloaded, serialising two round-trips. */
 
 :root {
   --bg: #FFFFFF; --card: #FFF5F5; --card-2: #FFFFFF; --primary: #E30613;
-  --secondary: #111111; --text: #0A0A0A; --text-dim: #767676;
+  --secondary: #111111; --text: #0A0A0A;
+  /* Was #767676 (4.54:1) - only just cleared WCAG AA and looked washed out on
+     small text. #5F5F5F gives 6.4:1 with no visual character lost. */
+  --text-dim: #5F5F5F;
   --border: rgba(0,0,0,.09);
   --mono: 'JetBrains Mono', monospace;
   --display: 'Space Grotesk', sans-serif;
@@ -13,6 +18,35 @@
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text); font-family: var(--body); overflow-x: hidden; cursor: default; }
 ::selection { background: var(--primary); color: #fff; }
+
+/* Anchored sections must clear the floating nav bubble, otherwise a hash
+   link lands with the heading tucked underneath it. */
+section[id] { scroll-margin-top: 120px; }
+
+/* Visible keyboard focus everywhere. Previously focus was invisible on most
+   controls, making keyboard navigation impossible to follow. */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 200;
+  padding: 12px 20px;
+  border-radius: 0 0 10px 10px;
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--body);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top .2s ease;
+}
+.skip-link:focus { top: 0; }
 
 #cursor-glow { position: fixed; top: 0; left: 0; width: 500px; height: 500px; border-radius: 50%; pointer-events: none; z-index: 1; background: radial-gradient(circle, rgba(227,6,19,0.07) 0%, rgba(227,6,19,0) 70%); transform: translate(-50%, -50%); will-change: transform; }
 .bg-grid { position: fixed; inset: 0; z-index: 0; background-image: linear-gradient(rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.04) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, #000 40%, transparent 90%); }
@@ -36,7 +70,9 @@ section { position: relative; z-index: 2; }
 .stat span { font-size: 12px; color: var(--text-dim); letter-spacing: .05em; text-transform: uppercase; }
 
 .hero-right { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; }
-.yantra-wrap { position: relative; width: min(48vw, 520px); aspect-ratio: 1; }
+/* min(...,100%) stops the diagram spilling past the viewport edge when the
+   hero text column squeezes this side of the flex row. */
+.yantra-wrap { position: relative; width: min(48vw, 520px, 100%); aspect-ratio: 1; }
 .yantra-wrap svg { width: 100%; height: 100%; overflow: visible; }
 .yantra-glow { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(227,6,19,.16), transparent 65%); filter: blur(20px); z-index: -1; }
 .node-label { font-family: var(--mono); font-size: 10px; fill: var(--text-dim); letter-spacing: .05em; }
@@ -66,7 +102,10 @@ section { position: relative; z-index: 2; }
 .work-teaser h2 { font-family: var(--display); font-size: clamp(32px, 4vw, 52px); font-weight: 700; margin-bottom: 20px; }
 .work-teaser p { color: var(--text-dim); font-size: 18px; max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
 
-.perspective-container { position: relative; height: 300vh; width: 100%; background: var(--bg); }
+/* Was 300vh: three full screens of scrolling to read one paragraph, which
+   read as the page being stuck. 200vh keeps the depth effect legible without
+   the scroll fatigue. */
+.perspective-container { position: relative; height: 200vh; width: 100%; background: var(--bg); }
 .perspective-eyebrow { position: absolute; left: 50%; top: 10%; transform: translateX(-50%); display: grid; justify-items: center; gap: 6px; text-align: center; }
 .perspective-eyebrow span { font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: .15em; text-transform: uppercase; opacity: .6; position: relative; }
 .perspective-eyebrow span::after { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 64px; background: linear-gradient(to bottom, var(--text-dim), transparent); }
@@ -87,7 +126,28 @@ section { position: relative; z-index: 2; }
 .why-item .mark { font-family: var(--mono); color: var(--primary); font-size: 13px; padding-top: 3px; }
 .why-item h4 { font-family: var(--display); font-size: 18px; font-weight: 600; margin-bottom: 6px; }
 .why-item p { color: var(--text-dim); font-size: 14px; line-height: 1.6; max-width: 420px; }
-.why-visual { aspect-ratio: 1; border-radius: 24px; border: 1px solid var(--border); background: var(--card); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+/* ------------------------------------------------------------ STACK DIAGRAM
+   Replaces .why-visual, which was a decorative crosshair SVG conveying no
+   information. Built as real markup rather than an image so the technology
+   names are selectable, searchable, and readable by screen readers. */
+.stack-diagram { border-radius: 24px; border: 1px solid var(--border); background: var(--card); padding: 32px; position: relative; overflow: hidden; }
+.stack-diagram-head { margin-bottom: 22px; }
+.stack-diagram-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--primary); display: block; margin-bottom: 8px; }
+.stack-diagram-head h3 { font-family: var(--display); font-size: 20px; font-weight: 700; }
+
+.stack-layers { list-style: none; display: flex; flex-direction: column; gap: 10px; position: relative; }
+/* The vertical spine visually ties the layers into one continuous stack -
+   the "zero relay" point the section is making. */
+.stack-layers::before { content: ''; position: absolute; left: 9px; top: 12px; bottom: 12px; width: 2px; background: linear-gradient(to bottom, var(--primary), rgba(227,6,19,.15)); border-radius: 2px; }
+
+.stack-layer { position: relative; padding: 12px 14px 12px 34px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; }
+.stack-layer::before { content: ''; position: absolute; left: 4px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--primary); }
+.stack-layer-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.stack-layer-name { font-family: var(--display); font-size: 14px; font-weight: 600; }
+.stack-layer-tech { font-family: var(--mono); font-size: 11px; color: var(--primary); }
+.stack-layer-note { font-size: 12px; color: var(--text-dim); display: block; margin-top: 3px; }
+
+.stack-diagram-foot { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 13px; line-height: 1.6; color: var(--text-dim); }
 
 .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .price-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 40px 32px; display: flex; flex-direction: column; }
@@ -118,6 +178,29 @@ section { position: relative; z-index: 2; }
 .contact-info .info-row .label { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; width: 100px; flex-shrink: 0; padding-top: 2px; }
 .contact-info .info-row .val { font-size: 15px; }
 .contact-info .info-row .val small { display: block; color: var(--text-dim); font-size: 13px; margin-top: 2px; }
+.contact-info .info-row .val a { color: var(--text); text-decoration: none; border-bottom: 1px solid rgba(227,6,19,.4); transition: color .25s; }
+.contact-info .info-row .val a:hover { color: var(--primary); }
+
+/* ------------------------------------------------------------- FORM STATES */
+.form-field .optional { text-transform: none; letter-spacing: 0; opacity: .7; }
+
+.field-error { font-size: 12px; color: var(--primary); font-weight: 500; line-height: 1.4; }
+.form-field input[aria-invalid="true"],
+.form-field textarea[aria-invalid="true"] { border-color: var(--primary); background: rgba(227,6,19,.04); }
+
+/* Honeypot: removed from view and from the accessibility tree, but still a
+   real focusable input that automated spam scripts will populate. */
+.hp-field { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+.form-status { grid-column: 1 / -1; }
+.form-status:focus { outline: none; }
+.form-notice { margin-top: 4px; padding: 16px 18px; border-radius: 12px; border: 1px solid rgba(227,6,19,.35); background: rgba(227,6,19,.05); }
+.form-notice strong { display: block; font-size: 14px; margin-bottom: 6px; }
+.form-notice p { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+.form-notice a { color: var(--primary); font-weight: 500; }
+
+.submit-btn { transition: opacity .25s; }
+.submit-btn:hover { opacity: .9; }
 
 footer { border-top: 1px solid var(--border); padding: 70px 48px 32px; }
 .footer-top { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 60px; }
@@ -129,17 +212,109 @@ footer { border-top: 1px solid var(--border); padding: 70px 48px 32px; }
 .footer-bottom { max-width: 1400px; margin: 0 auto; padding-top: 28px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
 .footer-bottom p { font-size: 13px; color: var(--text-dim); }
 
+/* ---------------------------------------------------------------- WORK PAGE
+   Replaces the previous hover-to-flip cards. Those hid the project name on
+   the back face and used onMouseEnter only, so on touch devices the whole
+   portfolio rendered as blank coloured rectangles with no way to read it. */
+
+.work-header { padding: 160px 48px 80px; max-width: 900px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+.work-header .tag { font-family: var(--mono); font-size: 12px; color: var(--primary); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 16px; display: block; }
+.work-header h1 { font-family: var(--display); font-size: clamp(36px, 5vw, 64px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin-bottom: 24px; }
+.work-header p { color: var(--text-dim); font-size: 18px; max-width: 620px; margin: 0 auto; line-height: 1.6; }
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 48px 120px;
+  position: relative;
+  z-index: 2;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--bg);
+  transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s;
+}
+.project-card:hover { transform: translateY(-6px); border-color: rgba(227,6,19,.35); box-shadow: 0 18px 40px rgba(0,0,0,.08); }
+
+.project-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px 28px;
+  background: linear-gradient(155deg, #E30613, #7a0410);
+  color: #fff;
+}
+.project-card.is-alt .project-card-head { background: linear-gradient(155deg, #111111, #3a3a3a); }
+
+.project-tag { font-family: var(--mono); font-size: 11px; background: rgba(255,255,255,.15); padding: 6px 12px; border-radius: 999px; letter-spacing: .05em; color: #fff; }
+.project-icon { width: 38px; height: 38px; stroke: #fff; stroke-width: 1.3; flex-shrink: 0; }
+
+.project-card-body { display: flex; flex-direction: column; flex: 1; padding: 28px; }
+.project-title { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+.project-desc { color: var(--text-dim); font-size: 15px; line-height: 1.65; margin-bottom: 24px; }
+
+.project-stack { margin-top: auto; }
+.project-stack-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-dim); display: block; margin-bottom: 10px; }
+.project-stack ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.project-stack li { font-family: var(--mono); font-size: 11px; background: var(--card); padding: 6px 12px; border-radius: 6px; color: var(--text-dim); border: 1px solid var(--border); }
+
+.work-cta { text-align: center; padding: 90px 48px; background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; z-index: 2; }
+.work-cta h2 { font-family: var(--display); font-size: clamp(26px, 3.4vw, 40px); font-weight: 700; margin-bottom: 14px; }
+.work-cta p { color: var(--text-dim); font-size: 16px; max-width: 520px; margin: 0 auto 32px; line-height: 1.6; }
+
+.work-footer { border-top: 1px solid var(--border); padding: 48px; text-align: center; color: var(--text-dim); font-size: 14px; position: relative; z-index: 2; }
+.work-footer a { color: var(--primary); text-decoration: none; }
+.work-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .work-header { padding: 130px 24px 56px; }
+  .work-grid { padding: 0 24px 80px; gap: 20px; }
+  .work-cta { padding: 70px 24px; }
+}
+
+/* -------------------------------------------------------------- 404 PAGE */
+.notfound { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 120px 24px 80px; position: relative; z-index: 2; }
+.notfound-code { font-family: var(--display); font-size: clamp(80px, 15vw, 160px); font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 8px; }
+.notfound h1 { font-family: var(--display); font-size: clamp(24px, 4vw, 36px); font-weight: 600; margin-bottom: 16px; }
+.notfound-copy { color: var(--text-dim); font-size: 17px; max-width: 460px; margin-bottom: 40px; line-height: 1.6; }
+.notfound-actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; justify-content: center; margin-bottom: 56px; }
+.notfound-links-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-dim); display: block; margin-bottom: 14px; }
+.notfound-links ul { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.notfound-links a { font-size: 13px; color: var(--text); text-decoration: none; padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); transition: border-color .25s, color .25s; display: block; }
+.notfound-links a:hover { border-color: var(--primary); color: var(--primary); }
+
 .reveal { opacity: 0; transform: translateY(40px); }
 
 @media (max-width: 900px) {
-  .hero { flex-direction: column; padding: 120px 24px 60px; text-align: left; }
-  .hero-right { order: -1; margin-bottom: 20px; }
-  .yantra-wrap { width: 70vw; }
+  .hero { flex-direction: column; padding: 120px 24px 60px; text-align: left; gap: 32px; }
+  .hero-right { order: -1; margin-bottom: 4px; }
+  /* Smaller than the old 70vw so the emblem doesn't push the headline and
+     CTA below the fold on a phone. */
+  .yantra-wrap { width: min(56vw, 300px); }
+  .hero-actions { gap: 18px; flex-wrap: wrap; margin-bottom: 44px; }
+  .contact-wrap { gap: 44px; }
+  .footer-top { gap: 32px; }
   .services-grid, .why-grid, .pricing-grid, .contact-wrap, .contact-form, .footer-top { grid-template-columns: 1fr; }
   .section-pad { padding: 90px 24px; }
   .hero-stats { flex-wrap: wrap; gap: 28px; }
 }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  /* The reveal helpers start at opacity 0 and are animated in by GSAP. With
+     motion disabled that animation is skipped, so make the content visible
+     up front instead of leaving blank sections on the page. */
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
 
 .antigravity-background {
   position: fixed;

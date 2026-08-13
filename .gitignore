@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Secrets - never commit API keys, even VITE_-prefixed public ones
+.env
+.env.*
+!.env.example
+
+# Local tooling output
+.playwright-mcp/
+*.png.tmp
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

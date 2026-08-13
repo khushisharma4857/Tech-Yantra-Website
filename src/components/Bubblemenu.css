@@ -76,10 +76,10 @@
 
 .bubble-menu .toggle-bubble{
   cursor:pointer;
-  border:none;
+  border:1px solid var(--border);
   flex-direction:column;
   padding:0;
-  transition:.2s;
+  transition:transform .2s ease;
 }
 
 .bubble-menu .toggle-bubble:hover{
@@ -91,7 +91,7 @@
   height:2px;
   background:var(--text);
   border-radius:2px;
-  transition:.3s;
+  transition:transform .3s ease;
 }
 
 .menu-line + .menu-line{
@@ -106,72 +106,81 @@
   transform:translateY(-3.5px) rotate(-45deg);
 }
 
-/* ---------- MENU ---------- */
+/* ---------- MENU OVERLAY ---------- */
 
 .bubble-menu-items{
-  position:absolute;
+  position:fixed;
   inset:0;
-  display:flex;
+  /* Hidden by default; GSAP flips this to flex on open so the exit
+     animation has something to animate before the panel disappears. */
+  display:none;
   justify-content:center;
   align-items:center;
-  pointer-events:none;
   z-index:99;
+
+  /* A real backdrop. Without one, page text showed through between the
+     pills and the menu was unreadable. */
+  background:rgba(255,255,255,.82);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
 }
 
-.bubble-menu-items.fixed{
-  position:fixed;
-}
-
-.bubble-menu-items.absolute{
-  position:absolute;
+.bubble-menu-panel{
+  width:100%;
+  max-width:1100px;
+  padding:0 48px;
 }
 
 .pill-list{
   list-style:none;
   margin:0;
-  padding:0 48px;
+  padding:0;
   display:flex;
   flex-wrap:wrap;
-  row-gap:12px;
-  width:100%;
-  max-width:1400px;
+  /* Row gap is larger than the column gap because the desktop pills are
+     rotated, which extends their corners vertically into the next row. */
+  gap:34px 16px;
   justify-content:center;
-  pointer-events:auto;
 }
 
+/* Three per row, remainder centres itself. Replaces the previous
+   nth-child margin hacks, which let rotated pills overlap each other. */
 .pill-col{
-  flex:0 0 calc(100% / 3);
+  flex:0 0 calc((100% - 32px) / 3);
   display:flex;
   justify-content:center;
-}
-
-.pill-col:nth-child(4):nth-last-child(2){
-  margin-left:calc(100% / 6);
-}
-
-.pill-col:nth-child(4):last-child{
-  margin-left:calc(100% / 3);
 }
 
 .pill-link{
   width:100%;
-  min-height:90px;
+  min-height:96px;
   border-radius:999px;
   background:#fff;
   color:#0A0A0A;
   border:1px solid var(--border);
+  box-shadow:0 6px 24px rgba(0,0,0,.06);
   text-decoration:none;
   display:flex;
   justify-content:center;
   align-items:center;
   font-family:var(--display);
-  font-size:clamp(1.2rem,2vw,2rem);
+  font-size:clamp(1.1rem,1.8vw,1.75rem);
   font-weight:600;
-  transition:.3s;
+  transition:background-color .3s ease,color .3s ease,transform .3s ease;
+}
+
+/* Tells the user which section they're currently on. */
+.pill-link.is-active{
+  border-color:var(--primary);
+  color:var(--primary);
+}
+
+.pill-link:focus-visible{
+  outline:3px solid var(--primary);
+  outline-offset:3px;
 }
 
 @media(min-width:900px){
-
   .pill-link{
     transform:rotate(var(--item-rot));
   }
@@ -181,28 +190,37 @@
     background:var(--hover-bg);
     color:var(--hover-color);
   }
-
 }
 
 @media(max-width:899px){
-
   .bubble-menu{
-    padding:0 24px;
+    padding:0 20px;
     top:16px;
   }
 
-  .bubble-menu-items{
-    align-items:flex-start;
-    padding-top:100px;
-  }
-
-  .pill-list{
-    padding:0 24px;
+  .bubble-menu-panel{
+    padding:0 20px;
   }
 
   .pill-col{
     flex:0 0 100%;
-    margin-left:0 !important;
   }
 
+  .pill-link{
+    min-height:72px;
+  }
+}
+
+/* Very small phones: the logo lockup would otherwise crowd the toggle. */
+@media(max-width:400px){
+  .logo-subtitle{display:none;}
+  .logo-title{font-size:14px;}
+  .logo-image{width:34px;height:34px;}
+  .bubble-menu .logo-bubble{padding:8px 14px;min-height:52px;}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .pill-link,
+  .menu-line,
+  .bubble-menu .toggle-bubble{transition:none;}
 }

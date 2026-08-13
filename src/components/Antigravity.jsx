@@ -1,7 +1,24 @@
-/* eslint-disable react/no-unknown-property */
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+
+/**
+ * Deterministic PRNG (mulberry32).
+ *
+ * Replaces Math.random() in the particle seeding: calling Math.random during
+ * render is impure, so the field was reshuffled on every re-render (including
+ * every window resize). A fixed seed keeps the layout stable and the render
+ * function pure, while looking identically random.
+ */
+const createSeededRandom = seed => {
+  let a = seed;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
 
 const AntigravityInner = ({
   count = 150,
@@ -11,14 +28,8 @@ const AntigravityInner = ({
   waveAmplitude = 1,
   particleSize = 1.2,
   lerpSpeed = 0.1,
-  color = <Antigravity
-  count={150}
-  color="#8B0000"
-  particleSize={1.2}
-  magnetRadius={6}
-  ringRadius={7}
-  lerpSpeed={0.1}
-/>,
+  color = '#E30613',
+  opacity = 0.35,
   autoAnimate = false,
   particleVariance = 1,
   rotationSpeed = 0,
@@ -33,26 +44,26 @@ const AntigravityInner = ({
 
   const lastMousePos = useRef({ x: 0, y: 0 });
   const lastMouseMoveTime = useRef(0);
-  const virtualMouse = useRef({ x: 0, y: 0 });
 
   const particles = useMemo(() => {
     const temp = [];
     const width = viewport.width || 100;
     const height = viewport.height || 100;
+    const random = createSeededRandom(0x5eed);
 
     for (let i = 0; i < count; i++) {
-      const t = Math.random() * 100;
-      const factor = 20 + Math.random() * 100;
-      const speed = 0.01 + Math.random() / 200;
-      const xFactor = -50 + Math.random() * 100;
-      const yFactor = -50 + Math.random() * 100;
-      const zFactor = -50 + Math.random() * 100;
+      const t = random() * 100;
+      const factor = 20 + random() * 100;
+      const speed = 0.01 + random() / 200;
+      const xFactor = -50 + random() * 100;
+      const yFactor = -50 + random() * 100;
+      const zFactor = -50 + random() * 100;
 
-      const x = (Math.random() - 0.5) * width;
-      const y = (Math.random() - 0.5) * height;
-      const z = (Math.random() - 0.5) * 20;
+      const x = (random() - 0.5) * width;
+      const y = (random() - 0.5) * height;
+      const z = (random() - 0.5) * 20;
 
-      const randomRadiusOffset = (Math.random() - 0.5) * 2;
+      const randomRadiusOffset = (random() - 0.5) * 2;
 
       temp.push({
         t,
@@ -81,7 +92,6 @@ const AntigravityInner = ({
     if (!mesh) return;
 
     const { viewport: v, pointer: m } = state;
-    console.log(m.x, m.y);
 
     const mouseDist = Math.sqrt(Math.pow(m.x - lastMousePos.current.x, 2) + Math.pow(m.y - lastMousePos.current.y, 2));
 
@@ -99,16 +109,17 @@ const AntigravityInner = ({
       destY = Math.cos(time * 0.5 * 2) * (v.height / 4);
     }
 
-     
-const targetX = destX;
-const targetY = destY;
+    const targetX = destX;
+    const targetY = destY;
 
     const globalRotation = state.clock.getElapsedTime() * rotationSpeed;
 
     particles.forEach((particle, i) => {
-      let { t, speed, mx, my, mz, cz, randomRadiusOffset } = particle;
+      const { speed, mx, my, mz, cz, randomRadiusOffset } = particle;
 
-      t = particle.t += speed / 2;
+      // Advance this particle's own phase clock, then read it back.
+      particle.t += speed / 2;
+      const t = particle.t;
 
       const projectionFactor = 1 - cz / 50;
       const projectedTargetX = targetX * projectionFactor;
@@ -181,14 +192,63 @@ particle.cz = THREE.MathUtils.lerp(
       {particleShape === 'sphere' && <sphereGeometry args={[0.2, 16, 16]} />}
       {particleShape === 'box' && <boxGeometry args={[0.3, 0.3, 0.3]} />}
       {particleShape === 'tetrahedron' && <tetrahedronGeometry args={[0.3]} />}
-      <meshBasicMaterial color={color} />
+      <meshBasicMaterial color={color} transparent opacity={opacity} depthWrite={false} />
     </instancedMesh>
   );
 };
 
+/**
+ * Returns true when the user has asked the OS to minimise motion, kept in sync
+ * if they change the setting while the page is open.
+ */
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(
+    () => typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = e => setReduced(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return reduced;
+};
+
+/** Pauses the render loop while the tab is in the background. */
+const useIsTabVisible = () => {
+  const [visible, setVisible] = useState(
+    () => typeof document === 'undefined' || !document.hidden
+  );
+
+  useEffect(() => {
+    const onChange = () => setVisible(!document.hidden);
+    document.addEventListener('visibilitychange', onChange);
+    return () => document.removeEventListener('visibilitychange', onChange);
+  }, []);
+
+  return visible;
+};
+
 const Antigravity = props => {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const isVisible = useIsTabVisible();
+
+  // Honour the OS-level motion preference: a constantly moving particle field
+  // is exactly what this setting exists to suppress.
+  if (prefersReducedMotion) return null;
+
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
+    <Canvas
+      camera={{ position: [0, 0, 50], fov: 35 }}
+      // Cap the pixel ratio: on a 3x phone screen the uncapped default renders
+      // ~9x the pixels for a decorative background nobody looks at directly.
+      dpr={[1, 1.5]}
+      frameloop={isVisible ? 'always' : 'never'}
+      gl={{ antialias: false, powerPreference: 'low-power' }}
+    >
       <AntigravityInner {...props} />
     </Canvas>
   );
