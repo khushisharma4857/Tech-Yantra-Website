@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Helmet } from 'react-helmet-async';
+import { motion } from 'framer-motion';
 import BubbleMenu from '../components/Bubblemenu';
-import Antigravity from '../components/Antigravity';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -86,7 +87,13 @@ export default function HomePage() {
   };
 
   return (
-    <>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0, y: -20 }} 
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
+      <SEO />
       <div id="cursor-glow" ref={glowRef} />
       <div className="bg-grid" />
       <BubbleMenu />
@@ -260,7 +267,7 @@ export default function HomePage() {
             <h2>Tell us what you're building.</h2>
             <p>Share a few details and you'll hear back within one business day with next steps and a rough scope.</p>
             <div className="contact-info">
-              <div className="info-row"><span className="label">Email</span><span className="val">hello@techyantra.dev</span></div>
+              <div className="info-row"><span className="label">Email</span><span className="val">info@techyantra.org</span></div>
               <div className="info-row"><span className="label">Location</span><span className="val">Noida, India<small>Remote-first, works across time zones</small></span></div>
               <div className="info-row"><span className="label">Response</span><span className="val">Within 24 hours</span></div>
             </div>
@@ -300,6 +307,6 @@ export default function HomePage() {
           <p>Built by Tech Yantra — instruments for modern business.</p>
         </div>
       </footer>
-    </>
+    </motion.div>
   );
 }

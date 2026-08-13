@@ -155,7 +155,7 @@
 
 .pill-link{
   width:100%;
-  min-height:140px;
+  min-height:90px;
   border-radius:999px;
   background:#fff;
   color:#0A0A0A;
@@ -165,7 +165,7 @@
   justify-content:center;
   align-items:center;
   font-family:var(--display);
-  font-size:clamp(1.5rem,3.5vw,3rem);
+  font-size:clamp(1.2rem,2vw,2rem);
   font-weight:600;
   transition:.3s;
 }

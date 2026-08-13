@@ -12,19 +12,14 @@ const MENU_ITEMS = [
   { label: "Contact", href: "/#contact", ariaLabel: "Contact", rotation: 8, hoverBg: "#E30613", hoverColor: "#ffffff" },
 ];
 
-export default function Bubblemenu({ useFixedPosition = false }) {
+export default function Bubblemenu({ useFixedPosition = true }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const overlayRef = useRef(null);
   const bubblesRef = useRef([]);
   const labelRefs = useRef([]);
 
-  const containerClassName = [
-    "bubble-menu",
-    useFixedPosition ? "fixed" : "absolute",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const containerClassName = "bubble-menu absolute";
 
   const handleToggle = () => setIsMenuOpen((prev) => !prev);
 
@@ -147,9 +142,7 @@ export default function Bubblemenu({ useFixedPosition = false }) {
       {isMenuOpen && (
         <div
           ref={overlayRef}
-          className={`bubble-menu-items ${
-            useFixedPosition ? "fixed" : "absolute"
-          }`}
+          className="bubble-menu-items fixed"
         >
           <ul className="pill-list">
             {MENU_ITEMS.map((item, idx) => (
