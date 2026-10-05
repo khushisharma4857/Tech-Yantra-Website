@@ -64,7 +64,7 @@ export default function WorkPage() {
               <p className="project-desc">{project.desc}</p>
 
               <div className="project-stack">
-                <span className="project-stack-label">Built with</span>
+                <span className="project-stack-label">{project.stackLabel || 'Built with'}</span>
                 <ul>
                   {project.stack.map(tech => (
                     <li key={tech}>{tech}</li>

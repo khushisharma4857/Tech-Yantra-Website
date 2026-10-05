@@ -28,5 +28,11 @@ export const projects = [
     desc: 'Industrial manufacturer site with SEO, GEO, WhatsApp automation, and CLM software delivered as one engagement.',
     stack: ['SEO', 'WhatsApp API', 'CLM'], alt: false,
     icon: <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.1-3.1a4 4 0 01-5.4 5.4L6 21l-3-3 9.4-9.4a4 4 0 015.4-5.4l-3.1 3.1z" />
+  },
+  {
+    tag: 'Custom Software', title: 'GUPTA JI MARRIAGE BUREAU',
+    desc: 'Custom software developed specifically for Gupta Ji Marriage Bureau, with a CRM tailored to its matrimonial business.',
+    stack: ['Custom Software', 'CRM'], stackLabel: 'Project type', alt: true,
+    icon: <><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 00-.1-7.8z" /><path d="M8 12h8M12 8v8" /></>
   }
 ];
